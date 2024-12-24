@@ -1,0 +1,14 @@
+{
+  "muku": {
+    "files": [
+      "muku/customer_metrics.csv",
+      "muku/people-500000.csv"
+    ]
+  },
+  "sans": {
+    "files": [
+      "sans/inventory_status.csv"
+    ]
+  },
+  "test": {}
+}
