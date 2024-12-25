@@ -1,14 +1,45 @@
 {
   "muku": {
+    "chotu": {
+      "files": [
+        "muku/chotu/people-500000.csv"
+      ],
+      "pranj": {
+        "al": {
+          "files": [
+            "muku/chotu/pranj/al/customer_metrics.csv"
+          ]
+        },
+        "files": [
+          "muku/chotu/pranj/customers-500000.csv",
+          "muku/chotu/pranj/people-500000 copy (copy 2).csv",
+          "muku/chotu/pranj/people-500000 copy.csv"
+        ]
+      }
+    },
     "files": [
-      "muku/customer_metrics.csv",
-      "muku/people-500000.csv"
+      "muku/customer_metrics.csv"
     ]
   },
   "sans": {
     "files": [
       "sans/inventory_status.csv"
-    ]
+    ],
+    "kar": {
+      "ari": {
+        "files": [
+          "sans/kar/ari/customers-500000.csv"
+        ]
+      },
+      "files": [
+        "sans/kar/people-500000.csv"
+      ]
+    },
+    "tiw": {
+      "files": [
+        "sans/tiw/inventory_status.csv"
+      ]
+    }
   },
   "test": {}
 }

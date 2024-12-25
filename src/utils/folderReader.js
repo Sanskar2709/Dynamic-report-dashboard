@@ -4,11 +4,31 @@ export const readFolderStructure = async () => {
   try {
     const response = await fetch("/folder/structure.json");
     const structure = await response.json();
-    return structure;
+
+    // Remove empty folders (no files and no subfolders with files)
+    const cleanStructure = removeEmptyFolders(structure);
+    return cleanStructure;
   } catch (error) {
     console.error("Error reading folder structure:", error);
     return {};
   }
+};
+
+// Helper function to remove empty folders
+const removeEmptyFolders = (structure) => {
+  const result = {};
+
+  Object.entries(structure).forEach(([key, value]) => {
+    // Check if folder has files or non-empty subfolders
+    const hasFiles = value.files && value.files.length > 0;
+    const hasSubfolders = Object.keys(value).some((k) => k !== "files");
+
+    if (hasFiles || hasSubfolders) {
+      result[key] = value;
+    }
+  });
+
+  return result;
 };
 
 export const loadCSVFromPublic = async (filePath) => {
@@ -22,16 +42,17 @@ export const loadCSVFromPublic = async (filePath) => {
         skipEmptyLines: true,
         dynamicTyping: true,
         complete: (results) => {
-          // Extract folder name from the path (first directory in path)
           const pathParts = filePath.split("/");
-          const folder = pathParts.length > 1 ? pathParts[0] : "root";
+          const fileName = pathParts.pop();
+          const folder = pathParts[0];
 
           resolve({
-            name: pathParts[pathParts.length - 1], // Get file name
+            name: fileName,
             path: filePath,
             data: results.data,
             headers: results.meta.fields,
             folder: folder,
+            fullPath: filePath,
             tags: [],
           });
         },

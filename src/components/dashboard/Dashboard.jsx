@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Tab } from "@headlessui/react";
-import { Folder, FileText } from "lucide-react";
-import Papa from "papaparse";
 import FileUploader from "./FileUploader";
-import DataGrid from "./DataGrid";
 import TagManager from "./TagManager";
 import Settings from "./Settings";
 import Loading from "../common/Loading";
+import FolderTabs from "./FolderTabs";
 import {
   readFolderStructure,
   loadCSVFromPublic,
 } from "../../utils/folderReader";
-
 import { clearTempFiles } from "../../utils/tempHandler";
 
 const Dashboard = () => {
@@ -25,12 +21,28 @@ const Dashboard = () => {
     tabColors: {},
     tagColors: {},
   });
-  const [selectedFolder, setSelectedFolder] = useState(0);
-  const [selectedFile, setSelectedFile] = useState({});
 
   useEffect(() => {
     loadAllFiles();
+    return () => clearTempFiles();
   }, []);
+
+  // Recursive function to get all file paths from structure
+  const getAllFilePaths = (structure) => {
+    let paths = [];
+    const traverse = (obj) => {
+      if (obj.files) {
+        paths = [...paths, ...obj.files];
+      }
+      Object.entries(obj).forEach(([key, value]) => {
+        if (key !== "files" && typeof value === "object") {
+          traverse(value);
+        }
+      });
+    };
+    traverse(structure);
+    return paths;
+  };
 
   const loadAllFiles = async () => {
     try {
@@ -41,32 +53,24 @@ const Dashboard = () => {
       setFolderStructure(structure);
 
       setLoadingMessage("Loading CSV files...");
-      const loadedFiles = [];
 
-      const processFolder = async (folder, folderPath = "") => {
-        if (folder.files) {
-          for (const filePath of folder.files) {
-            try {
-              const fileData = await loadCSVFromPublic(filePath);
-              loadedFiles.push(fileData);
-            } catch (error) {
-              console.error(`Error loading file ${filePath}:`, error);
-            }
+      // Get all file paths from structure
+      const allFilePaths = getAllFilePaths(structure);
+
+      // Load all files concurrently
+      const loadedFiles = await Promise.all(
+        allFilePaths.map(async (filePath) => {
+          try {
+            return await loadCSVFromPublic(filePath);
+          } catch (error) {
+            console.error(`Error loading file ${filePath}:`, error);
+            return null;
           }
-        }
+        })
+      );
 
-        for (const [subFolderName, subFolder] of Object.entries(folder)) {
-          if (subFolderName !== "files") {
-            const newPath = folderPath
-              ? `${folderPath}/${subFolderName}`
-              : subFolderName;
-            await processFolder(subFolder, newPath);
-          }
-        }
-      };
-
-      await processFolder(structure);
-      setFiles(loadedFiles);
+      // Filter out any failed loads
+      setFiles(loadedFiles.filter(Boolean));
       setIsLoading(false);
     } catch (error) {
       console.error("Error loading files:", error);
@@ -74,38 +78,34 @@ const Dashboard = () => {
     }
   };
 
-  // Get unique folders and their files
-  const foldersWithFiles = files.reduce((acc, file) => {
-    const folder = file.folder;
-    if (!acc[folder]) {
-      acc[folder] = [];
-    }
-    acc[folder].push(file);
-    return acc;
-  }, {});
-
-  const folders = Object.keys(foldersWithFiles).sort();
-
   const handleFileUpload = async (newFiles) => {
     setIsLoading(true);
     setLoadingMessage("Processing uploaded files...");
 
     try {
-      // Add files to state - they're already processed and in temp storage
-      setFiles((prev) => [...prev, ...newFiles]);
+      const processedFiles = newFiles.map((file) => ({
+        ...file,
+        folder: "temp", // All uploaded files go to temp folder
+      }));
+
+      // Update structure to include temp folder
+      setFolderStructure((prev) => ({
+        ...prev,
+        temp: {
+          files: [
+            ...(prev.temp?.files || []),
+            ...processedFiles.map((file) => file.path),
+          ],
+        },
+      }));
+
+      setFiles((prev) => [...prev, ...processedFiles]);
     } catch (error) {
       console.error("Error processing uploaded files:", error);
     }
 
     setIsLoading(false);
   };
-
-  // Clean up temp files when component unmounts
-  useEffect(() => {
-    return () => {
-      clearTempFiles();
-    };
-  }, []);
 
   const handleTagFile = (fileName, tag) => {
     setFiles((prev) =>
@@ -169,106 +169,24 @@ const Dashboard = () => {
                 onTagFile={handleTagFile}
                 onRemoveTag={handleRemoveTag}
               />
-              <Settings settings={settings} setSettings={setSettings} />
+              <Settings
+                settings={settings}
+                setSettings={setSettings}
+                structure={folderStructure}
+              />
             </div>
           </div>
 
-          {/* Folder Tabs */}
-          <Tab.Group
-            selectedIndex={selectedFolder}
-            onChange={(index) => {
-              setSelectedFolder(index);
-              setSelectedFile({});
-            }}
-          >
-            <Tab.List className="flex space-x-2 border-b">
-              {folders.map((folder) => (
-                <Tab
-                  key={folder}
-                  className={({ selected }) => `
-                    px-4 py-2 rounded-t-lg outline-none
-                    ${
-                      folder === "temp"
-                        ? selected
-                          ? "bg-yellow-500 text-white"
-                          : "bg-yellow-100 hover:bg-yellow-200"
-                        : selected
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }
-                    ${folder === "temp" ? "flex items-center gap-2" : ""}
-                  `}
-                >
-                  <div className="flex items-center gap-2">
-                    <Folder size={16} />
-                    <span>{folder}</span>
-                    {folder === "temp" && (
-                      <span className="px-2 py-0.5 text-xs bg-yellow-600 text-white rounded-full">
-                        Temporary
-                      </span>
-                    )}
-                  </div>
-                </Tab>
-              ))}
-            </Tab.List>
-
-            {/* File Tabs */}
-            <Tab.Panels>
-              {folders.map((folder) => (
-                <Tab.Panel key={folder} className="pt-4">
-                  <Tab.Group
-                    selectedIndex={selectedFile[folder] || 0}
-                    onChange={(index) =>
-                      setSelectedFile((prev) => ({
-                        ...prev,
-                        [folder]: index,
-                      }))
-                    }
-                  >
-                    <Tab.List className="flex space-x-2 border-b mb-4">
-                      {foldersWithFiles[folder].map((file) => (
-                        <Tab
-                          key={file.name}
-                          className={({ selected }) => `
-                            px-4 py-2 rounded-t-lg outline-none
-                            ${
-                              folder === "temp"
-                                ? selected
-                                  ? "bg-yellow-400 text-white"
-                                  : "bg-yellow-50 hover:bg-yellow-100"
-                                : selected
-                                ? "bg-green-500 text-white"
-                                : "bg-gray-50 hover:bg-gray-100"
-                            }
-                          `}
-                        >
-                          <div className="flex items-center gap-2">
-                            <FileText size={16} />
-                            <span>{file.name}</span>
-                          </div>
-                        </Tab>
-                      ))}
-                    </Tab.List>
-
-                    <Tab.Panels>
-                      {foldersWithFiles[folder].map((file) => (
-                        <Tab.Panel key={file.name}>
-                          <DataGrid
-                            files={[file]}
-                            pageSize={pageSize}
-                            tags={tags}
-                            settings={settings}
-                            onTagFile={handleTagFile}
-                            onRemoveTag={handleRemoveTag}
-                          />
-                        </Tab.Panel>
-                      ))}
-                    </Tab.Panels>
-                  </Tab.Group>
-                </Tab.Panel>
-              ))}
-            </Tab.Panels>
-          </Tab.Group>
+          {/* Folder Structure */}
+          <FolderTabs
+            structure={folderStructure}
+            files={files}
+            pageSize={pageSize}
+            tags={tags}
+            settings={settings}
+            onTagFile={handleTagFile}
+            onRemoveTag={handleRemoveTag}
+          />
 
           {/* Page Size Selector */}
           <div className="mt-4">
