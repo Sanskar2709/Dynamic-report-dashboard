@@ -27,7 +27,7 @@ function scanDirectory(directoryPath, relativePath = "") {
 const folderPath = path.join(__dirname, "../public/folder");
 const structure = scanDirectory(folderPath);
 
-// Write the structure to a JSON file
+// Writingf the structure to a JSON file
 fs.writeFileSync(
   path.join(__dirname, "../public/folder/structure.json"),
   JSON.stringify(structure, null, 2)

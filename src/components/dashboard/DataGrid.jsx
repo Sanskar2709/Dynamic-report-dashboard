@@ -2,10 +2,22 @@ import React, { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { groupBy, orderBy } from "lodash";
 
+/** DataGrid - A versatile data grid component for displaying and managing tabular data with advanced features
+ *
+ * This component provides a full-featured data grid with the following capabilities:
+ * - Displays tabular data from multiple files
+ * - Supports sorting by any column
+ * - Implements pagination with customizable page size
+ * - Groups data by tags with expandable/collapsible groups
+ * - Shows file tags with customizable colors
+ * - Allows adding/removing tags from files
+ **/
+
 export const DataGrid = ({
   files = [],
   pageSize = 20,
   tags = {},
+  settings = {},
   onTagFile,
   onRemoveTag,
 }) => {
@@ -205,6 +217,15 @@ export const DataGrid = ({
                       <td
                         colSpan={columns.length + 1}
                         className="px-6 py-4 font-medium"
+                        style={
+                          settings.tagColors[item.groupHeader]
+                            ? {
+                                borderLeft: `4px solid ${
+                                  settings.tagColors[item.groupHeader]
+                                }`,
+                              }
+                            : undefined
+                        }
                       >
                         <div className="flex items-center gap-2">
                           {item.isExpanded ? (
@@ -235,7 +256,15 @@ export const DataGrid = ({
                               {row.__tags?.map((tag) => (
                                 <span
                                   key={tag}
-                                  className="px-2 py-1 text-xs rounded bg-blue-100"
+                                  className="px-2 py-1 text-xs rounded"
+                                  style={{
+                                    backgroundColor: settings.tagColors[tag]
+                                      ? `${settings.tagColors[tag]}20`
+                                      : "#EBF5FF",
+                                    color: settings.tagColors[tag]
+                                      ? settings.tagColors[tag]
+                                      : "#3B82F6",
+                                  }}
                                 >
                                   {tag}
                                   <button
@@ -243,7 +272,12 @@ export const DataGrid = ({
                                       e.stopPropagation();
                                       onRemoveTag(row.__fileName, tag);
                                     }}
-                                    className="ml-1 text-gray-500 hover:text-gray-700"
+                                    className="ml-1 hover:opacity-75"
+                                    style={{
+                                      color: settings.tagColors[tag]
+                                        ? settings.tagColors[tag]
+                                        : "#3B82F6",
+                                    }}
                                   >
                                     ×
                                   </button>
@@ -269,12 +303,25 @@ export const DataGrid = ({
                         {item.__tags?.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-1 text-xs rounded bg-blue-100"
+                            className="px-2 py-1 text-xs rounded"
+                            style={{
+                              backgroundColor: settings.tagColors[tag]
+                                ? `${settings.tagColors[tag]}20`
+                                : "#EBF5FF",
+                              color: settings.tagColors[tag]
+                                ? settings.tagColors[tag]
+                                : "#3B82F6",
+                            }}
                           >
                             {tag}
                             <button
                               onClick={() => onRemoveTag(item.__fileName, tag)}
-                              className="ml-1 text-gray-500 hover:text-gray-700"
+                              className="ml-1 hover:opacity-75"
+                              style={{
+                                color: settings.tagColors[tag]
+                                  ? settings.tagColors[tag]
+                                  : "#3B82F6",
+                              }}
                             >
                               ×
                             </button>
