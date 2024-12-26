@@ -1,0 +1,25 @@
+*.html linguist-detectable=false
+# *.css linguist-detectable=false
+# *.scss linguist-detectable=false
+# *.less linguist-detectable=false
+
+# Mark JavaScript and JSX files as detectable
+*.js linguist-detectable=true
+*.jsx linguist-detectable=true
+*.ts linguist-detectable=true
+*.tsx linguist-detectable=true
+
+# Explicitly mark the repository as JavaScript
+*.js linguist-language=JavaScript
+*.jsx linguist-language=JavaScript
+*.ts linguist-language=JavaScript
+*.tsx linguist-language=JavaScript
+
+# Handle documentation
+*.md linguist-documentation=true
+*.txt linguist-documentation=true
+
+# Handle vendored files
+/node_modules/* linguist-vendored
+/build/* linguist-vendored
+/dist/* linguist-vendored
