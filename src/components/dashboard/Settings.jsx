@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Settings as SettingsIcon } from "lucide-react";
 
-
 /**
  * Settings Component
  * Manages color customisation for folders and tags
  * Provides a modal interface for settings configuraton
- * 
+ *
  * @param {Object} settings - Current settings including colors for tabs and tags
  * @param {Function} setSettings - Function to update settings state
  * @param {Object} structure - Folder structure for determining main folders
  */
-
 
 const Settings = ({ settings, setSettings, structure = {} }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,8 +43,18 @@ const Settings = ({ settings, setSettings, structure = {} }) => {
     return `#${rr}${gg}${bb}`;
   };
 
+  // const handleColorChange = (type, key, color) => {
+  //   setSettings((prev) => ({
+  //     ...prev,
+  //     [`${type}Colors`]: {
+  //       ...prev[`${type}Colors`],
+  //       [key]: color,
+  //     },
+  //   }));
+  // };
   // Handle color change for a main folder
   const handleColorChange = (folder, color) => {
+    console.log("folder name:", folder, " color:", color);
     const newColors = { ...settings.tabColors };
     newColors[folder] = color;
 

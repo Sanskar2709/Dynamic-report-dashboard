@@ -314,6 +314,50 @@ const FolderTabs = ({
   const renderFolderContent = () => {
     const { files: folderFiles, subFolders } = getCurrentContent(currentPath);
 
+    // Helper to get folder color based on path
+    const getFolderColor = (folderName, isRoot = false) => {
+      if (folderName === "temp") {
+        return {
+          color: "#78350F", // Darker amber text
+        };
+      }
+
+      if (isRoot) {
+        const color = settings.tabColors[folderName];
+        if (!color) return null;
+        return {
+          backgroundColor: color,
+          color: "white",
+          ":hover": {
+            backgroundColor: color + "dd",
+          },
+        };
+      }
+
+      const fullPath = [...currentPath, folderName].join("/");
+      const rootFolder = currentPath[0];
+      const rootColor = settings.tabColors[rootFolder];
+
+      if (!rootColor) return null;
+
+      // Calculate lighter shade based on nesting level
+      const level = currentPath.length;
+      const opacity = Math.max(0.3, 1 - level * 0.2);
+      const color =
+        rootColor +
+        Math.round(opacity * 255)
+          .toString(16)
+          .padStart(2, "0");
+
+      return {
+        backgroundColor: color,
+        color: "white",
+        ":hover": {
+          backgroundColor: color + "dd",
+        },
+      };
+    };
+
     return (
       <div className="space-y-4">
         {folderFiles.length > 0 && (
@@ -344,32 +388,51 @@ const FolderTabs = ({
 
         {subFolders.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
-            {subFolders.map((folder) => (
-              <button
-                key={folder.name}
-                onClick={() => {
-                  setCurrentPath((prev) => [...prev, folder.name]);
-                  setSelectedFile(null);
-                  setGrouping("none");
-                }}
-                className={`p-3 sm:p-4 rounded-lg text-left 
+            {subFolders.map((folder) => {
+              const folderName =
+                typeof folder === "string" ? folder : folder.name;
+              const style = getFolderColor(
+                folderName,
+                currentPath.length === 0
+              );
+              const isTemp = folderName === "temp";
+              return (
+                <button
+                  key={folder.name}
+                  onClick={() => {
+                    setCurrentPath((prev) => [...prev, folder.name]);
+                    setSelectedFile(null);
+                    setGrouping("none");
+                  }}
+                  style={
+                    !isTemp
+                      ? style || {
+                          backgroundColor: "rgb(249 250 251)",
+                          ":hover": {
+                            backgroundColor: "rgb(243 244 246)",
+                          },
+                        }
+                      : style
+                  }
+                  className={`p-3 sm:p-4 rounded-lg text-left 
                   ${
                     folder.name === "temp"
                       ? "temp-folder font-semibold text-amber-900"
-                      : "bg-gray-50 hover:bg-gray-100"
+                      : ""
                   }
                   transition-colors duration-200 ease-in-out
                   text-sm sm:text-base`}
-              >
-                <Folder
-                  className={`inline mr-2 ${
-                    folder.name === "temp" ? "text-amber-900" : ""
-                  }`}
-                  size={isMobileView ? 14 : 16}
-                />
-                {folder.name === "temp" ? "Temporary Files" : folder.name}
-              </button>
-            ))}
+                >
+                  <Folder
+                    className={`inline mr-2 ${
+                      folder.name === "temp" ? "text-amber-900" : ""
+                    }`}
+                    size={isMobileView ? 14 : 16}
+                  />
+                  {folder.name === "temp" ? "Temporary Files" : folder.name}
+                </button>
+              );
+            })}
           </div>
         )}
 
