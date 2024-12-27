@@ -35,7 +35,7 @@ const removeEmptyFolders = (structure) => {
 
 export const loadCSVFromPublic = async (filePath) => {
   try {
-    // Get the filestats.json data
+    // Read & Get the filestats.json data
     const statsResponse = await fetch("/folder/filestats.json");
     const fileStats = await statsResponse.json();
 
@@ -72,8 +72,8 @@ export const loadCSVFromPublic = async (filePath) => {
             folder: folder,
             fullPath: actualPath,
             tags: [],
-            createdDate: stats.createdAt, // Use actual creation date
-            modifiedDate: stats.modifiedAt, // Use actual modified date
+            createdDate: stats.createdAt, // Using actual creation date
+            modifiedDate: stats.modifiedAt, // Using actual modified date
             size: stats.size,
           });
         },

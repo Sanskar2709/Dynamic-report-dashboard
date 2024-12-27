@@ -1,6 +1,20 @@
 import React, { useState } from "react";
 import { Tag as TagIcon } from "lucide-react";
 
+/**
+ * TagManager Component
+ * Manages the creation, display, and removl of tags for files
+ * Provides a modal interface for tag operations
+ * 
+ * @paran {Object} tags - Object containing all tags and their associated files
+ * @param {Function} setTags - Function to update tags state
+ * @param {Array} files - Array of files available for tagging
+ * @param {Object} settings - Settings object containing tag colors
+ * @param {Function} onTagFile - Callback when a file is tagged
+ * @param {Function} onRemoveTag - Callback when a tag is removed from a file
+ */
+
+
 const TagManager = ({
   tags,
   setTags,

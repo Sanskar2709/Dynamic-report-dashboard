@@ -1,4 +1,3 @@
-// src/utils/csvHelper.js
 import Papa from "papaparse";
 
 export const parseCSV = (file) => {

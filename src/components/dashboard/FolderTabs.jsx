@@ -9,7 +9,10 @@ import {
 } from "lucide-react";
 import DataGrid from "./DataGrid";
 
-// Animation styles for temp folder
+/**
+ * Animated CSS styles for temporary folder highlighting
+ * Creates a glittering effect in desktop view and solid color in mobile
+ */
 const tempStyles = `
   @keyframes glitter {
     0% { background-color: #F59E0B; }
@@ -35,6 +38,19 @@ const tempStyles = `
     }
   }
 `;
+
+/**
+ * FolderTabs Component
+ * Main component for handling file and folder navigation, grouping, and visualization
+ *
+ * @param {Array} files - Array of file objects with properties like name, path, tags
+ * @param {Object} structure - Nested object representing folder hierarchhy
+ * @param {number} pageSize - No. of items to display per page in DataGrid
+ * @param {Object} tags - Object containing tag information and file associations
+ * @param {Object} settings - User settings including colors for tags and folders
+ * @param {Function} onTagFile - Callbak when a file is tagged
+ * @param {Function} onRemoveTag - Callback when a tag is removed from a file
+ */
 
 const FolderTabs = ({
   files = [],
@@ -72,9 +88,9 @@ const FolderTabs = ({
   // Helper functions for date handling
 
   /**
-   * 
-   * @param {*} dateStr - 
-   * @returns Date 
+   *
+   * @param {*} dateStr -
+   * @returns Date
    */
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -86,7 +102,13 @@ const FolderTabs = ({
     return date.toLocaleDateString("en-IN", options);
   };
 
-  // Get files by tags
+  /**
+   * Groups files by their assigned tags
+   *
+   * @param {Array} folderFiles - Array of files to be grouped
+   * @returns {Object} Object containing tagged and untagged file groups
+   */
+
   const getFilesByTags = (folderFiles) => {
     const tagGroups = {};
     const untaggedFiles = [];
@@ -108,6 +130,7 @@ const FolderTabs = ({
   };
 
   // Get files by date
+
   const getFilesByDate = (folderFiles) => {
     const dateGroups = {};
 
@@ -280,6 +303,13 @@ const FolderTabs = ({
       </Tab.Group>
     );
   };
+
+  /**
+   * Renders main folder content including subfolders and files
+   * Handles grouping controls and file display
+   *
+   * @returns {JSX.Element} Complete folder content view
+   */
 
   const renderFolderContent = () => {
     const { files: folderFiles, subFolders } = getCurrentContent(currentPath);
