@@ -3,11 +3,7 @@
     "files": [
       "muku/customer_metrics.csv"
     ],
-    "friend": {
-      "files": [
-        "muku/friend/organizations-1000000.csv"
-      ]
-    }
+    "friend": {}
   },
   "sans": {
     "files": [
