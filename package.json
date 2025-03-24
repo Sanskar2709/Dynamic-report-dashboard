@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@playwright/test": "^1.49.1",
     "cypress": "^13.17.0",
     "fs": "^0.0.1-security",
