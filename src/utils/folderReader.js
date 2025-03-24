@@ -9,7 +9,8 @@ export const readFolderStructure = async () => {
     ]);
 
     const structure = await structureResponse.json();
-    const fileStats = await statsResponse.json();
+    //const fileStats = await statsResponse.json();
+    await statsResponse.json();
 
     return removeEmptyFolders(structure);
   } catch (error) {

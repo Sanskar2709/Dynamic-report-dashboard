@@ -44,6 +44,7 @@ const Dashboard = () => {
   useEffect(() => {
     loadAllFiles();
     return () => clearTempFiles();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

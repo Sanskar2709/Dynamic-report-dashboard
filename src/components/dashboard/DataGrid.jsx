@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { groupBy, orderBy } from "lodash";
+import { orderBy } from "lodash";
 
 /** DataGrid - A versatile data grid component for displaying and managing tabular data with advanced features
  *

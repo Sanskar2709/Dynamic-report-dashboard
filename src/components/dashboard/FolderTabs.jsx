@@ -334,7 +334,7 @@ const FolderTabs = ({
         };
       }
 
-      const fullPath = [...currentPath, folderName].join("/");
+      //const fullPath = [...currentPath, folderName].join("/");
       const rootFolder = currentPath[0];
       const rootColor = settings.tabColors[rootFolder];
 
